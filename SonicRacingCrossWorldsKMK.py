@@ -12,7 +12,11 @@ from ..game_objective_template import GameObjectiveTemplate
 
 from ..enums import KeymastersKeepGamePlatforms
 
-class TemplateGame(game):
+@dataclass
+class SRCArchipelagoOptions:
+    pass
+
+class SRCGame(Game):
     name = "Sonic Racing: CrossWorlds"
     platform = KeymastersKeepGamePlatforms.PC
     platforms_other = [
@@ -26,10 +30,9 @@ class TemplateGame(game):
 
     is_adult_only_or_unrated = False
 
-    options_cls = TemplateArchipelagoOptions
+    options_cls = SRCArchipelagoOptions
     
-    @staticmethod
-    def characters() -> List[str]:
+    def characters_base(self) -> List[str]:
         return [
             "Sonic",
             "Tails",
@@ -54,16 +57,23 @@ class TemplateGame(game):
             "Jet",
             "Wave",
             "Storm",
+        ]
+    
+    def characters(self) -> List[str]:
+        characters: List[str] = self.characters_base()[:]
+        characters.extend([
             "NiGHTS",
             "Joker",
             "Ichiban",
             "Miku",
-        ]
+        ])
+        return sorted(characters)
+    
     def vehicles(self) -> List[str]:
         return sorted(self.speed_vehicles[:] + self.acceleration_vehicles[:] + self.handling_vehicles[:] + self.power_vehicles[:] + self.boost_vehicles[:])
 
-    @staticmethod
-    def speed_vehicles() -> List[str]:
+    @functools.cached_property
+    def speed_vehicles(self) -> List[str]:
         return [
             "Speedster Lightning",
             "Dark Reaper",
@@ -77,8 +87,8 @@ class TemplateGame(game):
             "Arsène Wing",
         ]
     
-    @staticmethod
-    def acceleration_vehicles() -> List[str]:
+    @functools.cached_property
+    def acceleration_vehicles(self) -> List[str]:
         return [
             "Whirlwind Sport",
             "Jumble Rage",
@@ -91,8 +101,8 @@ class TemplateGame(game):
             "Giganto Liner",
         ]
 
-    @staticmethod
-    def handling_vehicles() -> List[str]:
+    @functools.cached_property
+    def handling_vehicles(self) -> List[str]:
         return [
             "Pink Cabriolet",
             "Lip Spyder",
@@ -105,8 +115,8 @@ class TemplateGame(game):
             "Neo Lightron",
         ]
 
-    @staticmethod
-    def power_vehicles() -> List[str]:
+    @functools.cached_property
+    def power_vehicles(self) -> List[str]:
         return [
             "Land Smasher",
             "Road Dragoon",
@@ -120,8 +130,8 @@ class TemplateGame(game):
             "Dragon Brave",
         ]
 
-    @staticmethod
-    def boost_vehicles() -> List[str]:
+    @functools.cached_property
+    def boost_vehicles(self) -> List[str]:
         return [
             "TYPE-J Iota",
             "TYPE-S Stream",
@@ -149,8 +159,7 @@ class TemplateGame(game):
             "Secret",
         ]
 
-    @staticmethod
-    def courses() -> List[str]:
+    def courses(self) -> List[str]:
         return [
             "E-Stadium",
             "Rainbow Garden",
@@ -178,8 +187,7 @@ class TemplateGame(game):
             "White Space",
         ]
 
-    @staticmethod
-    def crossworlds() -> List[str]:
+    def crossworlds(self) -> List[str]:
         return [
             "Sky Road",
             "Roulette Road",
@@ -199,10 +207,10 @@ class TemplateGame(game):
         ]
 
     def time_trial_courses(self) -> List[str]:
-        return self.courses[:] + self.crossworlds[:]
+        return self.courses()[:] + self.crossworlds()[:]
    
     @staticmethod
-    def race_park_rulesets() -> List[str]:
+    def race_park_rules() -> List[str]:
         return [
             "Triple Team Ring Grab",
             "Triple Team Tap Boost",
@@ -251,6 +259,7 @@ class TemplateGame(game):
             "Magnet",
         ]
 
+    @staticmethod
     def gadgets() -> List[str]:
         return [
            "Starting Boost Bounty",
@@ -359,121 +368,121 @@ class TemplateGame(game):
     def game_objective_templates(self) -> List[GameObjectiveTemplate]:
         return [
             GameObjectiveTemplate(
-                label="Finish 1st on COURSE as CHARACTER on SPEED speed",
-                data=(
+                label="Finish 1st on COURSE as CHARACTER on SPEED Speed",
+                data={
                     "COURSE": (self.courses, 1),
                     "CHARACTER": (self.characters, 1),
                     "SPEED": (self.speeds, 1),
-                ),
+                },
                 is_time_consuming=False,
                 is_difficult=False,
                 weight=3
             ),
             GameObjectiveTemplate(
-                label="Finish POSITION on COURSES as CHARACTER on SPEED speed",
-                data=(
-                    "POSITION": (self.position, 1),
-                    "COURSES": (self,courses, 3),
+                label="Finish POSITION on COURSES as CHARACTER on SPEED Speed",
+                data={
+                    "POSITION": (self.positions, 1),
+                    "COURSES": (self.courses, 3),
                     "CHARACTER": (self.characters, 1),
                     "SPEED": (self.speeds, 1),
-                ),
+                },
                 is_time_consuming=False,
                 is_difficult=False,
                 weight=3,
             ),
             GameObjectiveTemplate(
-                label="Finish POSITION in the GP Grand Prix as CHARACTER on SPEED speed against a level LEVEL rival",
-                data=(
+                label="Finish POSITION in the GP Grand Prix as CHARACTER on SPEED Speed against a level LEVEL rival",
+                data={
                     "POSITION": (self.positions, 1),
                     "GP": (self.grand_prixs, 1),
                     "CHARACTER": (self.characters, 1),
                     "SPEED": (self.speeds, 1),
-                    "LEVEL": (self.easy_levels, 1)
-                ),
+                    "LEVEL": (self.easy_rival_levels, 1),
+                },
                 is_time_consuming=False,
                 is_difficult= False,
                 weight=3,
             ),
             GameObjectiveTemplate(
-                label="Finish POSITION in the GP Grand Prix as CHARACTER on SPEED speed against a level LEVEL rival",
-                data=(
+                label="Finish POSITION in the GP Grand Prix as CHARACTER on SPEED Speed against a level LEVEL rival",
+                data={
                     "POSITION": (self.positions, 1),
                     "GP": (self.grand_prixs, 1),
                     "CHARACTER": (self.characters, 1),
                     "SPEED": (self.speeds, 1),
-                    "LEVEL": (self.hard_levels, 1),
-                ),
+                    "LEVEL": (self.hard_rival_levels, 1),
+                },
                 is_time_consuming=False,
                 is_difficult=True,
                 weight=1,
             ),
             GameObjectiveTemplate(
-                label="Win a RULESET on COURSE on SPEED speed against a level LEVEL rival team",
-                data=(
-                    "RULESET": (self.race_park_rulesets, 1),
+                label="Win a RULESET on COURSE on SPEED Speed against a level LEVEL rival team",
+                data={
+                    "RULESET": (self.race_park_rules, 1),
                     "COURSE": (self.courses, 1),
                     "SPEED": (self.speeds, 1),
-                    "LEVEL": (self.easy_levels, 1),
-                ),
+                    "LEVEL": (self.easy_rival_levels, 1),
+                },
                 is_time_consuming=False,
                 is_difficult=False,
                 weight=3
             ),
             GameObjectiveTemplate(
-                label="Win a RULESET on COURSE on SPEED speed against a level LEVEL rival team",
-                data=(
-                    "RULESET": (self.race_park_rulesets, 1),
+                label="Win a RULESET on COURSE on SPEED Speed against a level LEVEL rival team",
+                data={
+                    "RULESET": (self.race_park_rules, 1),
                     "COURSE": (self.courses, 1),
                     "SPEED": (self.speeds, 1),
-                    "LEVEL": (self.hard_levels, 1),
-                )
+                    "LEVEL": (self.hard_rival_levels, 1),
+                },
+                is_time_consuming=False,
+                is_difficult=True,
+                weight=1,
             ),
             GameObjectiveTemplate(
                 label="Get an A rank on the Sonic Speed time trial for COURSE",
-                data=(
+                data={
                     "COURSE": (self.time_trial_courses, 1),
-                ),
+                },
                 is_time_consuming=False,
                 is_difficult=False,
                 weight=3
             ),
             GameObjectiveTemplate(
                 label="Complete a race (other than a Custom Match) in which Lap 2 takes place in CROSSWORLD",
-                data=(
+                data={
                     "CROSSWORLD": (self.crossworlds, 1),
-                ),
+                },
                 is_time_consuming=True,
                 is_difficult=False,
                 weight=1
             ),
             GameObjectiveTemplate(
                 label="Hit CHARACTER with an item",
-                data=(
-                    "CHARACTER": (self.characters, 1),
-                ),
+                data={
+                    "CHARACTER": (self.characters_base, 1),
+                },
                 is_time_consuming=False,
                 is_difficult=False,
                 weight=2
             ),
             GameObjectiveTemplate(
                 label="Finish 1st while holding ITEM",
-                data=(
+                data={
                     "ITEM": (self.items, 1),        
-                ),
+                },
                 is_time_consuming=False,
                 is_difficult=False,
                 weight=2
             ),
             GameObjectiveTemplate(
-                label="Win a race with the GADGET gadget equipped.",
-                data=(
+                label="Win a race with the GADGET gadget equipped",
+                data={
                     "GADGET": (self.gadgets, 1),
-                ),
+                },
                 is_time_consuming=False,
                 is_difficult=False,
                 weight=3
             ),
         ]
-
-class TemplateArchipelagoOptions:
-    pass

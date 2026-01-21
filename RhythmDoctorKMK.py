@@ -264,7 +264,7 @@ class RhythmDoctorGame(Game):
         return sorted(levels)
 
     def levels_speedmod(self) -> List[str]:
-        levels: List[str] = self.levels[:]
+        levels: List[str] = self.levels()[:]
         levels.remove("5-3: Seventh-Inning Stretch")
         return levels
 
@@ -304,8 +304,7 @@ class RhythmDoctorGame(Game):
             "2-B1: Beans Hopper",
         ]
 
-    @staticmethod
-    def bosses() -> List[str]:
+    def bosses(self) -> List[str]:
         return [
             "1-X: Battleworn Insomniac",
             "2-X: All The Times",
@@ -318,7 +317,7 @@ class RhythmDoctorGame(Game):
         ]
     
     def bosses_speedmod(self) -> List[str]:
-        bosses: List[str] = self.bosses[:]
+        bosses: List[str] = self.bosses()[:]
         bosses.remove("7-X: Miracle Defibrillator")
         bosses.remove("7-X2: Miracle Defibrillator (Cole's Song)")
         return bosses
